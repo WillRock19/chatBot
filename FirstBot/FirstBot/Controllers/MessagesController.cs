@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using FirstBot.Forms;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.FormFlow;
 using Microsoft.Bot.Connector;
 
 namespace FirstBot
@@ -20,8 +23,22 @@ namespace FirstBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                await Conversation.SendAsync(activity, () => new Dialogs.RootDialog());
+                //await Conversation.SendAsync(activity, () => new Dialogs.RootDialog());
                 //await Conversation.SendAsync(activity, () => new Dialogs.QnaPizzaDialog());
+                await Conversation.SendAsync(activity, () => new Dialogs.CotacaoDialog());
+            }
+            else if (activity.Type == ActivityTypes.ConversationUpdate)
+            {
+                if (activity.MembersAdded != null && activity.MembersAdded.Any())
+                {
+                    foreach (var member in activity.MembersAdded)
+                    {
+                        if (member.Id != activity.Recipient.Id)
+                        {
+                            await SendConversation(activity);
+                        }
+                    }
+                }
             }
             else
             {
@@ -29,6 +46,11 @@ namespace FirstBot
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
+        }
+
+        private async Task SendConversation(Activity activity)
+        {
+            await Conversation.SendAsync(activity, () => Chain.From(() => FormDialog.FromForm(() => Pedido.BuildForm(), FormOptions.PromptFieldsWithValues)));
         }
 
         private Activity HandleSystemMessage(Activity message)
