@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FirstBot.Dialogs
@@ -16,10 +17,7 @@ namespace FirstBot.Dialogs
         private static string QnaKnowladgeBase = ConfigurationManager.AppSettings["QnaKnowledgeBaseId"];
         private static double precisionScore = 0.40;
 
-        public QnaPizzaDialog() : base(new QnAMakerService(new QnAMakerAttribute(QnaSubscription, QnaKnowladgeBase, "Não encontrei sua resposta", precisionScore, 2)))
-        {
-
-        }
+        public QnaPizzaDialog() : base(new QnAMakerService(new QnAMakerAttribute(QnaSubscription, QnaKnowladgeBase, "Não encontrei sua resposta", precisionScore, 2))) { }
 
         protected override async Task RespondFromQnAMakerResultAsync(IDialogContext context, IMessageActivity message, QnAMakerResults result)
         {
@@ -30,12 +28,24 @@ namespace FirstBot.Dialogs
             if (dadosResposta.Length == 1)
             {
                 await context.PostAsync(primeiraResposta);
+                //context.Call(new CotacaoDialog(), ExecuteAfterFoward);
+
                 return;
             }
 
             resposta.Attachments.Add(CreateHeroCardWithData(dadosResposta).ToAttachment());
             await context.PostAsync(resposta);
+
+            context.Done<string>(null);
+
+            //await context.Forward(new CotacaoDialog(), ExecuteAfterFoward, message, CancellationToken.None);
         }
+
+        private async Task ExecuteAfterFoward(IDialogContext context, IAwaitable<object> item)
+        {
+            await context.PostAsync("Executando método após foward");
+        }
+
 
         private HeroCard CreateHeroCardWithData(string[] data)
         {
@@ -50,7 +60,13 @@ namespace FirstBot.Dialogs
                 Subtitle = descricao,
                 Buttons = new List<CardAction>
                 {
-                    new CardAction(ActionTypes.OpenUrl, "Compre agora", value:linkCompra)
+                    new CardAction(ActionTypes.OpenUrl, "Compre agora", value:linkCompra),
+                    new CardAction()
+                    {
+                        Type = ActionTypes.PostBack,
+                        Title = "Eira",
+                        Value = "Teste"
+                    }  
                 }
             };
 

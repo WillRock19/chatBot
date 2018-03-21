@@ -23,23 +23,21 @@ namespace FirstBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                //await Conversation.SendAsync(activity, () => new Dialogs.RootDialog());
-                //await Conversation.SendAsync(activity, () => new Dialogs.QnaPizzaDialog());
-                await Conversation.SendAsync(activity, () => new Dialogs.CotacaoDialog());
+                await Conversation.SendAsync(activity, () => new Dialogs.QnaPizzaDialog());
             }
-            else if (activity.Type == ActivityTypes.ConversationUpdate)
-            {
-                if (activity.MembersAdded != null && activity.MembersAdded.Any())
-                {
-                    foreach (var member in activity.MembersAdded)
-                    {
-                        if (member.Id != activity.Recipient.Id)
-                        {
-                            await SendConversation(activity);
-                        }
-                    }
-                }
-            }
+            //else if (activity.Type == ActivityTypes.ConversationUpdate)
+            //{
+            //    if (activity.MembersAdded != null && activity.MembersAdded.Any())
+            //    {
+            //        foreach (var member in activity.MembersAdded)
+            //        {
+            //            if (member.Id != activity.Recipient.Id)
+            //            {
+            //                await SendConversation(activity);
+            //            }
+            //        }
+            //    }
+            //}
             else
             {
                 HandleSystemMessage(activity);

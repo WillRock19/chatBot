@@ -9,6 +9,8 @@ namespace FirstBot.Dialogs
     [Serializable]
     public class RootDialog : IDialog<object>
     {
+        private int t = 0;
+
         public Task StartAsync(IDialogContext context)
         {
             context.Wait(MessageReceivedAsync);
@@ -18,6 +20,8 @@ namespace FirstBot.Dialogs
 
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
+            t++;
+
             var activity = await result as Activity;
             var resposta = ((Activity)context.Activity).CreateReply();
 

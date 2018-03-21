@@ -11,9 +11,12 @@ namespace FirstBot.Dialogs
     [LuisModel("4e1a5b37-721e-4c0e-95c2-835ae9468f55", "bc1e37ee93a8408db7f30a120ff6e375")]
     public class CotacaoDialog : LuisDialog<object>
     {
-        public CotacaoDialog()
+        public CotacaoDialog() { }
+
+        [LuisIntent("")]
+        public async Task Nada(IDialogContext context, LuisResult result)
         {
-            
+            await context.PostAsync("Bom... tamos na dialog de cotação");
         }
 
         [LuisIntent("None")]
@@ -27,7 +30,10 @@ namespace FirstBot.Dialogs
         {
             var horaAtual = DateTime.Now;
 
-            if(horaAtual.Hour < 12)
+            if (horaAtual.Hour == 12)
+                await context.PostAsync("VAI ALMOÇAR!");
+
+            if (horaAtual.Hour < 12)
                 await context.PostAsync("Bom dia, humano. Você tomou banho hoje?");
 
             if (horaAtual.Hour > 12 && horaAtual.Hour < 18)
@@ -35,6 +41,8 @@ namespace FirstBot.Dialogs
 
             if (horaAtual.Hour > 18)
                 await context.PostAsync("Bom noite humano. Que você nunca veja outra.");
+
+            context.Done<string>("eiiiiiiita");
         }
 
         [LuisIntent("Sobre")]
